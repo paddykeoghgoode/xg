@@ -1,0 +1,116 @@
+.fpl-xg-weeks-tool {
+  border-radius: 14px;
+  padding: 18px;
+  background: linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%);
+  border: 1px solid #d6e4ff;
+  box-shadow: 0 8px 24px rgba(18, 52, 115, 0.08);
+}
+
+.fpl-xg-header h3 {
+  margin: 0;
+  color: #12254f;
+  font-size: 1.4rem;
+}
+
+.fpl-xg-header p {
+  margin: 8px 0 14px;
+  color: #2b3d66;
+}
+
+.fpl-xg-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.fpl-xg-controls label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #223866;
+}
+
+.fpl-xg-controls input {
+  width: 88px;
+  border: 1px solid #b7c7ea;
+  border-radius: 8px;
+  padding: 6px 8px;
+  background: #fff;
+}
+
+#fpl-xg-load {
+  background: #245dff;
+  color: #fff;
+  border: none;
+  border-radius: 9px;
+  padding: 9px 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+#fpl-xg-load:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.fpl-xg-status {
+  margin: 8px 0 14px;
+  color: #16387d;
+  font-weight: 600;
+}
+
+.fpl-xg-status.is-error {
+  color: #b42318;
+}
+
+.fpl-xg-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.fpl-xg-card {
+  border: 1px solid #dce6fa;
+  border-radius: 12px;
+  background: #fff;
+  padding: 12px;
+}
+
+.fpl-xg-card h4 {
+  margin: 2px 0 10px;
+  color: #1a2f60;
+}
+
+.fpl-xg-table-wrap {
+  overflow-x: auto;
+}
+
+.fpl-xg-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.fpl-xg-table th,
+.fpl-xg-table td {
+  border: 1px solid #e8efff;
+  padding: 8px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.fpl-xg-table thead {
+  background: #f2f6ff;
+}
+
+.fpl-xg-table tbody tr:nth-child(even) {
+  background: #fafcff;
+}
+
+@media (min-width: 1060px) {
+  .fpl-xg-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
