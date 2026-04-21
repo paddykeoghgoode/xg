@@ -2,9 +2,9 @@
 
 ## What it does
 This plugin adds a dynamic dashboard showing:
-- **Team xG ranking table** over selected recent gameweeks.
+- **Team xG ranking table** over selected recent gameweeks, including xGA, real goals for/against, and expected points (xPts).
 - **Opponents faced** by each team in that gameweek window.
-- **Individual player xG list** (ranked) for the same period.
+- **Individual player xG list** (ranked) for the same period, including xA, xGI, expected points (xPts), goals, assists, points, and position.
 
 Data is pulled from the official FPL API and refreshed live through AJAX.
 
@@ -18,10 +18,12 @@ Data is pulled from the official FPL API and refreshed live through AJAX.
 
 ## Data sources
 - `/bootstrap-static/` for players, teams, and events.
-- `/element-summary/{player_id}/` for per-gameweek expected goals (`expected_goals`).
+- `/event/{gw}/live/` for gameweek-level player stats (`expected_goals`, `expected_assists`, points, goals, assists, minutes).
 - `/fixtures/?event={gw}` for opponent lists by gameweek.
 
 ## Notes
 - Team xG is aggregated from player xG totals.
 - Fixtures are used to show opponent context (to reduce inflated interpretation).
-- Uses WordPress transients (30 minutes) for bootstrap-static, fixtures, and player summaries.
+- Team xPts is estimated from per-fixture xG values using a Poisson goal model.
+- Player xPts is estimated from attacking outputs (`xG`/`xA`) using FPL scoring weights by position.
+- Uses WordPress transients (30 minutes) for bootstrap-static, fixtures, and gameweek live payloads.

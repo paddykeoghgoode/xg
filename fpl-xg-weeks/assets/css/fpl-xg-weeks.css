@@ -108,9 +108,3 @@
 .fpl-xg-table tbody tr:nth-child(even) {
   background: #fafcff;
 }
-
-@media (min-width: 1060px) {
-  .fpl-xg-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-}
