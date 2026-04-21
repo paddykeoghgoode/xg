@@ -591,6 +591,22 @@ class FPL_XG_Weeks_Tool {
                             'xg_away' => 0.0,
                         ];
                     }
+
+                    if ($home_score !== null && $away_score !== null) {
+                        $rows[$home]['goals_for'] += $home_score;
+                        $rows[$home]['goals_against'] += $away_score;
+                        $rows[$away]['goals_for'] += $away_score;
+                        $rows[$away]['goals_against'] += $home_score;
+                    }
+
+                    if ($fixture_id > 0) {
+                        $fixtures_by_id[$fixture_id] = [
+                            'home' => $home,
+                            'away' => $away,
+                            'xg_home' => 0.0,
+                            'xg_away' => 0.0,
+                        ];
+                    }
                 }
             }
         }
