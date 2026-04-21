@@ -25,7 +25,13 @@
           <td>${index + 1}</td>
           <td><strong>${escapeHtml(row.name)}</strong></td>
           <td>${escapeHtml(row.xg)}</td>
-          <td>${escapeHtml(row.xg_per_90)}</td>
+          <td>${escapeHtml(row.xga)}</td>
+          <td>${escapeHtml(row.goals_for)}</td>
+          <td>${escapeHtml(row.goals_against)}</td>
+          <td>${escapeHtml(row.avg_fdr)}</td>
+          <td>${escapeHtml(row.xg_per_match)}</td>
+          <td>${escapeHtml(row.median_xg_per_match)}</td>
+          <td>${escapeHtml(row.expected_points)}</td>
           <td>${escapeHtml(row.matches)}</td>
           <td>${escapeHtml(opponentsText(row.opponents))}</td>
         </tr>
@@ -45,8 +51,18 @@
           <td>${index + 1}</td>
           <td><strong>${escapeHtml(row.name)}</strong></td>
           <td>${escapeHtml(row.team)}</td>
+          <td>${escapeHtml(row.position)}</td>
           <td>${escapeHtml(row.xg)}</td>
+          <td>${escapeHtml(row.xa)}</td>
+          <td>${escapeHtml(row.xgi)}</td>
+          <td>${escapeHtml(row.expected_points)}</td>
+          <td>${escapeHtml(row.goals)}</td>
+          <td>${escapeHtml(row.assists)}</td>
+          <td>${escapeHtml(row.points)}</td>
           <td>${escapeHtml(row.xg_per_90)}</td>
+          <td>${escapeHtml(row.xa_per_90)}</td>
+          <td>${escapeHtml(row.xgi_per_90)}</td>
+          <td>${escapeHtml(row.median_xg)}</td>
           <td>${escapeHtml(row.minutes)}</td>
           <td>${escapeHtml(opponentsText(row.opponents))}</td>
         </tr>
@@ -60,6 +76,51 @@
     const $status = $('#fpl-xg-status');
     $status.text(message);
     $status.toggleClass('is-error', Boolean(isError));
+  }
+
+  function sortableValue(text) {
+    const normalized = String(text).replaceAll(',', '').trim();
+    const asNumber = Number(normalized);
+    if (!Number.isNaN(asNumber) && normalized !== '') {
+      return { type: 'number', value: asNumber };
+    }
+    return { type: 'text', value: normalized.toLowerCase() };
+  }
+
+  function makeTableSortable(tableSelector) {
+    const $table = $(tableSelector);
+    const $headers = $table.find('thead th');
+
+    $headers.each((index, th) => {
+      const $th = $(th);
+      $th.css('cursor', 'pointer');
+      $th.attr('title', 'Click to sort');
+      $th.off('click.fplsort').on('click.fplsort', () => {
+        const currentDir = $th.data('sortDir') === 'asc' ? 'desc' : 'asc';
+        $headers.removeData('sortDir');
+        $th.data('sortDir', currentDir);
+
+        const rows = $table.find('tbody tr').get();
+        rows.sort((a, b) => {
+          const aText = $(a).children().eq(index).text();
+          const bText = $(b).children().eq(index).text();
+          const aVal = sortableValue(aText);
+          const bVal = sortableValue(bText);
+
+          let cmp = 0;
+          if (aVal.type === 'number' && bVal.type === 'number') {
+            cmp = aVal.value - bVal.value;
+          } else {
+            cmp = String(aVal.value).localeCompare(String(bVal.value));
+          }
+
+          return currentDir === 'asc' ? cmp : -cmp;
+        });
+
+        const $tbody = $table.find('tbody');
+        rows.forEach((row) => $tbody.append(row));
+      });
+    });
   }
 
   function loadData() {
@@ -89,6 +150,8 @@
 
         renderTeams(teamRows);
         renderPlayers(playerRows);
+        makeTableSortable('#fpl-xg-teams-table');
+        makeTableSortable('#fpl-xg-players-table');
 
         setStatus(`Updated for GW${data.fromGw}–GW${data.toGw}: ${teamRows.length} teams, ${playerRows.length} players.`);
       })
