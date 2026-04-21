@@ -25,4 +25,4 @@ Data is pulled from the official FPL API and refreshed live through AJAX.
 ## Notes
 - Team xG is aggregated from player xG totals.
 - Fixtures are used to show opponent context (to reduce inflated interpretation).
-- Uses WordPress transients (30 minutes) for fixtures and player summaries.
+- Uses WordPress transients (30 minutes) for bootstrap-static, fixtures, and player summaries.
