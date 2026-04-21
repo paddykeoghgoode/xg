@@ -20,9 +20,6 @@ class FPL_XG_Weeks_Tool {
 
         // New unique shortcode.
         add_shortcode('xg_fpl_rankings_pro', [$this, 'render_shortcode']);
-        // Legacy alias for backward compatibility.
-        add_shortcode('fpl_xg_tool', [$this, 'render_shortcode']);
-
         add_action('wp_ajax_' . self::ACTION, [$this, 'ajax_get_data']);
         add_action('wp_ajax_nopriv_' . self::ACTION, [$this, 'ajax_get_data']);
     }

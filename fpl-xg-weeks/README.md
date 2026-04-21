@@ -10,7 +10,6 @@ Data is pulled from the official FPL API and refreshed live through AJAX.
 
 ## Shortcodes
 - Primary (unique): `[xg_fpl_rankings_pro]`
-- Legacy alias: `[fpl_xg_tool]`
 
 ## Install
 1. Copy the `fpl-xg-weeks` folder into your WordPress `wp-content/plugins/` directory.
