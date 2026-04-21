@@ -25,7 +25,11 @@
           <td>${index + 1}</td>
           <td><strong>${escapeHtml(row.name)}</strong></td>
           <td>${escapeHtml(row.xg)}</td>
-          <td>${escapeHtml(row.xg_per_90)}</td>
+          <td>${escapeHtml(row.xga)}</td>
+          <td>${escapeHtml(row.goals_for)}</td>
+          <td>${escapeHtml(row.goals_against)}</td>
+          <td>${escapeHtml(row.xg_per_match)}</td>
+          <td>${escapeHtml(row.expected_points)}</td>
           <td>${escapeHtml(row.matches)}</td>
           <td>${escapeHtml(opponentsText(row.opponents))}</td>
         </tr>
@@ -45,7 +49,14 @@
           <td>${index + 1}</td>
           <td><strong>${escapeHtml(row.name)}</strong></td>
           <td>${escapeHtml(row.team)}</td>
+          <td>${escapeHtml(row.position)}</td>
           <td>${escapeHtml(row.xg)}</td>
+          <td>${escapeHtml(row.xa)}</td>
+          <td>${escapeHtml(row.xgi)}</td>
+          <td>${escapeHtml(row.expected_points)}</td>
+          <td>${escapeHtml(row.goals)}</td>
+          <td>${escapeHtml(row.assists)}</td>
+          <td>${escapeHtml(row.points)}</td>
           <td>${escapeHtml(row.xg_per_90)}</td>
           <td>${escapeHtml(row.minutes)}</td>
           <td>${escapeHtml(opponentsText(row.opponents))}</td>
