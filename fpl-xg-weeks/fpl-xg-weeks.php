@@ -2,7 +2,7 @@
 /**
  * Plugin Name: FPL xG Over Weeks Tool
  * Description: Dynamic tool to view team and player expected goals (xG) over a selected number of recent FPL gameweeks.
- * Version: 1.1.0
+ * Version: 1.1.1
  * Author: xg
  */
 
@@ -20,9 +20,6 @@ class FPL_XG_Weeks_Tool {
 
         // New unique shortcode.
         add_shortcode('xg_fpl_rankings_pro', [$this, 'render_shortcode']);
-        // Legacy alias for backward compatibility.
-        add_shortcode('fpl_xg_tool', [$this, 'render_shortcode']);
-
         add_action('wp_ajax_' . self::ACTION, [$this, 'ajax_get_data']);
         add_action('wp_ajax_nopriv_' . self::ACTION, [$this, 'ajax_get_data']);
     }
@@ -32,14 +29,14 @@ class FPL_XG_Weeks_Tool {
             'fpl-xg-weeks-style',
             plugin_dir_url(__FILE__) . 'assets/css/fpl-xg-weeks.css',
             [],
-            '1.1.0'
+            '1.1.1'
         );
 
         wp_register_script(
             'fpl-xg-weeks-script',
             plugin_dir_url(__FILE__) . 'assets/js/fpl-xg-weeks.js',
             ['jquery'],
-            '1.1.0',
+            '1.1.1',
             true
         );
 
@@ -134,7 +131,7 @@ class FPL_XG_Weeks_Tool {
         $player_limit = isset($_POST['playerLimit']) ? (int) $_POST['playerLimit'] : 60;
         $player_limit = max(10, min(300, $player_limit));
 
-        $bootstrap = $this->request_json('/bootstrap-static/');
+        $bootstrap = $this->get_bootstrap_static();
 
         if (is_wp_error($bootstrap)) {
             wp_send_json_error(['message' => $bootstrap->get_error_message()], 500);
@@ -370,6 +367,24 @@ class FPL_XG_Weeks_Tool {
         set_transient($cache_key, $fixtures, 30 * MINUTE_IN_SECONDS);
 
         return $fixtures;
+    }
+
+    private function get_bootstrap_static() {
+        $cache_key = 'fpl_xg_bootstrap_static';
+        $cached = get_transient($cache_key);
+
+        if (is_array($cached)) {
+            return $cached;
+        }
+
+        $bootstrap = $this->request_json('/bootstrap-static/');
+        if (is_wp_error($bootstrap)) {
+            return $bootstrap;
+        }
+
+        set_transient($cache_key, $bootstrap, 30 * MINUTE_IN_SECONDS);
+
+        return $bootstrap;
     }
 
     private function get_player_summary(int $player_id) {
