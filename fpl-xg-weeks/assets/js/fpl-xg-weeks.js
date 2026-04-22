@@ -175,6 +175,51 @@
     $(`[data-player-preset="${preset}"]`).addClass('is-active');
   }
 
+  function sortableValue(text) {
+    const normalized = String(text).replaceAll(',', '').trim();
+    const asNumber = Number(normalized);
+    if (!Number.isNaN(asNumber) && normalized !== '') {
+      return { type: 'number', value: asNumber };
+    }
+    return { type: 'text', value: normalized.toLowerCase() };
+  }
+
+  function makeTableSortable(tableSelector) {
+    const $table = $(tableSelector);
+    const $headers = $table.find('thead th');
+
+    $headers.each((index, th) => {
+      const $th = $(th);
+      $th.css('cursor', 'pointer');
+      $th.attr('title', 'Click to sort');
+      $th.off('click.fplsort').on('click.fplsort', () => {
+        const currentDir = $th.data('sortDir') === 'asc' ? 'desc' : 'asc';
+        $headers.removeData('sortDir');
+        $th.data('sortDir', currentDir);
+
+        const rows = $table.find('tbody tr').get();
+        rows.sort((a, b) => {
+          const aText = $(a).children().eq(index).text();
+          const bText = $(b).children().eq(index).text();
+          const aVal = sortableValue(aText);
+          const bVal = sortableValue(bText);
+
+          let cmp = 0;
+          if (aVal.type === 'number' && bVal.type === 'number') {
+            cmp = aVal.value - bVal.value;
+          } else {
+            cmp = String(aVal.value).localeCompare(String(bVal.value));
+          }
+
+          return currentDir === 'asc' ? cmp : -cmp;
+        });
+
+        const $tbody = $table.find('tbody');
+        rows.forEach((row) => $tbody.append(row));
+      });
+    });
+  }
+
   function loadData() {
     const weeks = Number($('#fpl-xg-week-count').val() || 5);
     const playerLimit = Number($('#fpl-xg-player-limit').val() || 60);
