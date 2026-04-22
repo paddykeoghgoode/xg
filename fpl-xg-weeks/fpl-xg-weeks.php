@@ -258,6 +258,7 @@ class FPL_XG_Weeks_Tool {
             if (is_wp_error($summary)) {
                 return $summary;
             }
+        }
 
             $player_accumulators[$player_id] = [
                 'team_id' => (int) ($bootstrap_player['team'] ?? 0),
@@ -657,14 +658,14 @@ class FPL_XG_Weeks_Tool {
             return $cached;
         }
 
-        $summary = $this->request_json('/element-summary/' . $player_id . '/');
-        if (is_wp_error($summary)) {
-            return $summary;
+        $event_live = $this->request_json('/event/' . $gw . '/live/');
+        if (is_wp_error($event_live)) {
+            return $event_live;
         }
 
-        set_transient($cache_key, $summary, 30 * MINUTE_IN_SECONDS);
+        set_transient($cache_key, $event_live, 30 * MINUTE_IN_SECONDS);
 
-        return $summary;
+        return $event_live;
     }
 
     private function request_json(string $path) {
