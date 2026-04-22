@@ -15,6 +15,15 @@
     return opponents.join(', ');
   }
 
+  function opponentsHtml(opponents) {
+    if (!Array.isArray(opponents) || opponents.length === 0) {
+      return '—';
+    }
+    return opponents
+      .map((opp) => `<span class="fpl-xg-opp-chip">${escapeHtml(opp)}</span>`)
+      .join(' ');
+  }
+
   function renderTeams(rows) {
     const $body = $('#fpl-xg-teams-body');
     $body.empty();
@@ -33,7 +42,7 @@
           <td>${escapeHtml(row.median_xg_per_match)}</td>
           <td>${escapeHtml(row.expected_points)}</td>
           <td>${escapeHtml(row.matches)}</td>
-          <td>${escapeHtml(opponentsText(row.opponents))}</td>
+          <td class="fpl-xg-opp-list">${opponentsHtml(row.opponents)}</td>
         </tr>
       `);
     });
@@ -55,7 +64,6 @@
           <td>${escapeHtml(row.xg)}</td>
           <td>${escapeHtml(row.xa)}</td>
           <td>${escapeHtml(row.xgi)}</td>
-          <td>${escapeHtml(row.expected_points)}</td>
           <td>${escapeHtml(row.goals)}</td>
           <td>${escapeHtml(row.assists)}</td>
           <td>${escapeHtml(row.points)}</td>
@@ -64,7 +72,7 @@
           <td>${escapeHtml(row.xgi_per_90)}</td>
           <td>${escapeHtml(row.median_xg)}</td>
           <td>${escapeHtml(row.minutes)}</td>
-          <td>${escapeHtml(opponentsText(row.opponents))}</td>
+          <td class="fpl-xg-opp-list">${opponentsHtml(row.opponents)}</td>
         </tr>
       `);
     });
