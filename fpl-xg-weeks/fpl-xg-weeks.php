@@ -2,7 +2,7 @@
 /**
  * Plugin Name: FPL xG Over Weeks Tool
  * Description: Dynamic tool to view team and player expected goals (xG) over a selected number of recent FPL gameweeks.
- * Version: 1.1.9
+ * Version: 1.1.10
  * Author: xg
  */
 
@@ -29,14 +29,14 @@ class FPL_XG_Weeks_Tool {
             'fpl-xg-weeks-style',
             plugin_dir_url(__FILE__) . 'assets/css/fpl-xg-weeks.css',
             [],
-            '1.1.9'
+            '1.1.10'
         );
 
         wp_register_script(
             'fpl-xg-weeks-script',
             plugin_dir_url(__FILE__) . 'assets/js/fpl-xg-weeks.js',
             ['jquery'],
-            '1.1.9',
+            '1.1.10',
             true
         );
 
@@ -232,14 +232,12 @@ class FPL_XG_Weeks_Tool {
                 $team_names[$team_id] = (string) ($team['name'] ?? 'Unknown');
             }
         }
-
         foreach ($elements as $player) {
             $player_id = isset($player['id']) ? (int) $player['id'] : 0;
             if ($player_id > 0) {
                 $elements_by_id[$player_id] = $player;
             }
         }
-
         foreach ($element_types as $position) {
             $position_id = isset($position['id']) ? (int) $position['id'] : 0;
             if ($position_id > 0) {
@@ -247,13 +245,16 @@ class FPL_XG_Weeks_Tool {
             }
         }
 
-        $team_meta = $fixtures_context['teamMeta'] ?? [];
-        $fixtures_by_id = $fixtures_context['fixtures'] ?? [];
-        $team_stats = [];
-        $team_gw_xg = [];
+        $team_meta = isset($fixtures_context['teamMeta']) && is_array($fixtures_context['teamMeta']) ? $fixtures_context['teamMeta'] : [];
+        $fixtures_by_id = isset($fixtures_context['fixtures']) && is_array($fixtures_context['fixtures']) ? $fixtures_context['fixtures'] : [];
+        $team_gw_fixture_counts = isset($fixtures_context['teamGwFixtures']) && is_array($fixtures_context['teamGwFixtures']) ? $fixtures_context['teamGwFixtures'] : [];
+
         $player_accumulators = [];
+        $team_gw_xg = [];
+        $team_stats = [];
+
         foreach ($elements_by_id as $player_id => $bootstrap_player) {
-            $summary = $this->get_player_summary($player_id);
+            $summary = $this->get_player_summary((int) $player_id);
             if (is_wp_error($summary)) {
                 return $summary;
             }
@@ -273,7 +274,7 @@ class FPL_XG_Weeks_Tool {
                 'opponents' => [],
             ];
 
-            $history = $summary['history'] ?? [];
+            $history = isset($summary['history']) && is_array($summary['history']) ? $summary['history'] : [];
             foreach ($history as $entry) {
                 $gw = isset($entry['round']) ? (int) $entry['round'] : 0;
                 if ($gw < $from_gw || $gw > $to_gw) {
@@ -293,46 +294,32 @@ class FPL_XG_Weeks_Tool {
                 $player_accumulators[$player_id]['minutes'] += $entry_minutes;
                 if ($entry_minutes > 0) {
                     $player_accumulators[$player_id]['matches']++;
+                    $player_accumulators[$player_id]['xg_samples'][] = $entry_xg;
                 }
                 $player_accumulators[$player_id]['goals'] += isset($entry['goals_scored']) ? (int) $entry['goals_scored'] : 0;
                 $player_accumulators[$player_id]['assists'] += isset($entry['assists']) ? (int) $entry['assists'] : 0;
                 $player_accumulators[$player_id]['points'] += isset($entry['total_points']) ? (int) $entry['total_points'] : 0;
-                if ($entry_minutes > 0) {
-                    $player_accumulators[$player_id]['xg_samples'][] = $entry_xg;
-                }
-                $player_accumulators[$player_id]['goals'] += isset($stats['goals_scored']) ? (int) $stats['goals_scored'] : 0;
-                $player_accumulators[$player_id]['assists'] += isset($stats['assists']) ? (int) $stats['assists'] : 0;
-                $player_accumulators[$player_id]['points'] += isset($stats['total_points']) ? (int) $stats['total_points'] : 0;
-                $player_accumulators[$player_id]['xg_samples'][] = $entry_xg;
 
                 if ($opponent_team_id > 0 && isset($team_names[$opponent_team_id])) {
                     $player_accumulators[$player_id]['opponents'][$opponent_team_id] = $team_names[$opponent_team_id];
                 }
 
                 if ($fixture_id > 0 && isset($fixtures_by_id[$fixture_id])) {
-                    $fixture_home = (int) $fixtures_by_id[$fixture_id]['home'];
-                    $fixture_away = (int) $fixtures_by_id[$fixture_id]['away'];
-                    $team_for_entry = 0;
-
-                    if ($opponent_team_id === $fixture_home) {
-                        $team_for_entry = $fixture_away;
-                    } elseif ($opponent_team_id === $fixture_away) {
-                        $team_for_entry = $fixture_home;
-                    } else {
-                        $current_team = (int) ($bootstrap_player['team'] ?? 0);
-                        if ($current_team === $fixture_home || $current_team === $fixture_away) {
-                            $team_for_entry = $current_team;
-                        }
-                    }
+                    $fixture_home = (int) ($fixtures_by_id[$fixture_id]['home'] ?? 0);
+                    $fixture_away = (int) ($fixtures_by_id[$fixture_id]['away'] ?? 0);
+                    $team_for_entry = $this->infer_player_team_for_fixture($opponent_team_id, $fixture_home, $fixture_away, (int) ($bootstrap_player['team'] ?? 0));
 
                     if ($team_for_entry === $fixture_home) {
-                        $fixtures_by_id[$fixture_id]['xg_home'] += $entry_xg;
+                        $fixtures_by_id[$fixture_id]['xg_home'] = (float) ($fixtures_by_id[$fixture_id]['xg_home'] ?? 0.0) + $entry_xg;
                     } elseif ($team_for_entry === $fixture_away) {
-                        $fixtures_by_id[$fixture_id]['xg_away'] += $entry_xg;
+                        $fixtures_by_id[$fixture_id]['xg_away'] = (float) ($fixtures_by_id[$fixture_id]['xg_away'] ?? 0.0) + $entry_xg;
                     }
 
                     if ($team_for_entry > 0) {
-                        $team_gw_xg[$team_for_entry][$gw] = ($team_gw_xg[$team_for_entry][$gw] ?? 0.0) + $entry_xg;
+                        if (! isset($team_gw_xg[$team_for_entry])) {
+                            $team_gw_xg[$team_for_entry] = [];
+                        }
+                        $team_gw_xg[$team_for_entry][$gw] = (float) ($team_gw_xg[$team_for_entry][$gw] ?? 0.0) + $entry_xg;
                     }
                 }
             }
@@ -340,34 +327,23 @@ class FPL_XG_Weeks_Tool {
 
         $player_rows = [];
         foreach ($player_accumulators as $player_id => $acc) {
-            $acc_xg = isset($acc['xg']) ? (float) $acc['xg'] : 0.0;
-            $acc_minutes = isset($acc['minutes']) ? (int) $acc['minutes'] : 0;
+            $acc_xg = (float) ($acc['xg'] ?? 0.0);
+            $acc_minutes = (int) ($acc['minutes'] ?? 0);
             if ($acc_xg <= 0.0 && $acc_minutes <= 0) {
                 continue;
             }
 
             $bootstrap_player = isset($elements_by_id[$player_id]) ? $elements_by_id[$player_id] : [];
-            $team_id = isset($acc['team_id']) ? (int) $acc['team_id'] : 0;
-            $player_name = isset($bootstrap_player['web_name']) ? (string) $bootstrap_player['web_name'] : '';
-            $first_name = isset($bootstrap_player['first_name']) ? (string) $bootstrap_player['first_name'] : '';
-            $second_name = isset($bootstrap_player['second_name']) ? (string) $bootstrap_player['second_name'] : '';
-
+            $player_name = (string) ($bootstrap_player['web_name'] ?? '');
             if ($player_name === '') {
-                $player_name = trim($first_name . ' ' . $second_name);
-            }
-            if ($player_name === '') {
-                $player_name = 'Unknown Player';
+                $player_name = trim(((string) ($bootstrap_player['first_name'] ?? '')) . ' ' . ((string) ($bootstrap_player['second_name'] ?? '')));
             }
             if ($player_name === '') {
                 $player_name = 'Unknown Player';
             }
 
             $position_id = (int) ($bootstrap_player['element_type'] ?? 0);
-
-            sort($acc['opponents']);
-            $minutes = (int) $acc['minutes'];
-
-            $position_id = isset($bootstrap_player['element_type']) ? (int) $bootstrap_player['element_type'] : 0;
+            $team_id = (int) ($acc['team_id'] ?? 0);
             $opponents = isset($acc['opponents']) && is_array($acc['opponents']) ? $acc['opponents'] : [];
             sort($opponents);
 
@@ -391,16 +367,17 @@ class FPL_XG_Weeks_Tool {
             ];
         }
 
-        $team_gw_fixture_counts = $fixtures_context['teamGwFixtures'] ?? [];
         foreach ($fixtures_by_id as &$fixture) {
             $fixture_gw = (int) ($fixture['gw'] ?? 0);
             $home = (int) ($fixture['home'] ?? 0);
             $away = (int) ($fixture['away'] ?? 0);
+            $home_xg = (float) ($fixture['xg_home'] ?? 0.0);
+            $away_xg = (float) ($fixture['xg_away'] ?? 0.0);
 
-            if (((float) ($fixture['xg_home'] ?? 0.0)) <= 0.0 && $fixture_gw > 0 && isset($team_gw_xg[$home][$fixture_gw])) {
+            if ($home_xg <= 0.0 && $fixture_gw > 0 && isset($team_gw_xg[$home][$fixture_gw])) {
                 $fixture['xg_home'] = ((float) $team_gw_xg[$home][$fixture_gw]) / max(1, (int) ($team_gw_fixture_counts[$home][$fixture_gw] ?? 1));
             }
-            if (((float) ($fixture['xg_away'] ?? 0.0)) <= 0.0 && $fixture_gw > 0 && isset($team_gw_xg[$away][$fixture_gw])) {
+            if ($away_xg <= 0.0 && $fixture_gw > 0 && isset($team_gw_xg[$away][$fixture_gw])) {
                 $fixture['xg_away'] = ((float) $team_gw_xg[$away][$fixture_gw]) / max(1, (int) ($team_gw_fixture_counts[$away][$fixture_gw] ?? 1));
             }
         }
@@ -456,17 +433,28 @@ class FPL_XG_Weeks_Tool {
         usort($team_rows, function ($a, $b) {
             return $b['xg'] <=> $a['xg'];
         });
-
         usort($player_rows, function ($a, $b) {
             return $b['xg'] <=> $a['xg'];
         });
 
-        $player_rows = array_slice($player_rows, 0, $player_limit);
-
         return [
             'teamRows' => $team_rows,
-            'playerRows' => $player_rows,
+            'playerRows' => array_slice($player_rows, 0, $player_limit),
         ];
+    }
+
+    private function infer_player_team_for_fixture(int $opponent_team_id, int $fixture_home, int $fixture_away, int $current_team): int {
+        if ($opponent_team_id === $fixture_home) {
+            return $fixture_away;
+        }
+        if ($opponent_team_id === $fixture_away) {
+            return $fixture_home;
+        }
+        if ($current_team === $fixture_home || $current_team === $fixture_away) {
+            return $current_team;
+        }
+
+        return 0;
     }
 
     private function calculate_expected_points_for_fixture(float $home_xg, float $away_xg): array {
