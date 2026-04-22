@@ -2,7 +2,7 @@
 /**
  * Plugin Name: FPL xG Over Weeks Tool
  * Description: Dynamic tool to view team and player expected goals (xG) over a selected number of recent FPL gameweeks.
- * Version: 1.1.8
+ * Version: 1.1.9
  * Author: xg
  */
 
@@ -29,14 +29,14 @@ class FPL_XG_Weeks_Tool {
             'fpl-xg-weeks-style',
             plugin_dir_url(__FILE__) . 'assets/css/fpl-xg-weeks.css',
             [],
-            '1.1.8'
+            '1.1.9'
         );
 
         wp_register_script(
             'fpl-xg-weeks-script',
             plugin_dir_url(__FILE__) . 'assets/js/fpl-xg-weeks.js',
             ['jquery'],
-            '1.1.8',
+            '1.1.9',
             true
         );
 
@@ -300,12 +300,6 @@ class FPL_XG_Weeks_Tool {
                 if ($entry_minutes > 0) {
                     $player_accumulators[$player_id]['xg_samples'][] = $entry_xg;
                 }
-                $player_accumulators[$player_id]['goals'] += isset($entry['goals_scored']) ? (int) $entry['goals_scored'] : 0;
-                $player_accumulators[$player_id]['assists'] += isset($entry['assists']) ? (int) $entry['assists'] : 0;
-                $player_accumulators[$player_id]['points'] += isset($entry['total_points']) ? (int) $entry['total_points'] : 0;
-                if ($entry_minutes > 0) {
-                    $player_accumulators[$player_id]['xg_samples'][] = $entry_xg;
-                }
                 $player_accumulators[$player_id]['goals'] += isset($stats['goals_scored']) ? (int) $stats['goals_scored'] : 0;
                 $player_accumulators[$player_id]['assists'] += isset($stats['assists']) ? (int) $stats['assists'] : 0;
                 $player_accumulators[$player_id]['points'] += isset($stats['total_points']) ? (int) $stats['total_points'] : 0;
@@ -346,17 +340,23 @@ class FPL_XG_Weeks_Tool {
 
         $player_rows = [];
         foreach ($player_accumulators as $player_id => $acc) {
-            if (($acc['xg'] <= 0.0) && ((int) $acc['minutes'] <= 0)) {
+            $acc_xg = isset($acc['xg']) ? (float) $acc['xg'] : 0.0;
+            $acc_minutes = isset($acc['minutes']) ? (int) $acc['minutes'] : 0;
+            if ($acc_xg <= 0.0 && $acc_minutes <= 0) {
                 continue;
             }
 
-            $bootstrap_player = $elements_by_id[$player_id] ?? [];
-            $team_id = (int) ($acc['team_id'] ?? 0);
-            $player_name = (string) ($bootstrap_player['web_name'] ?? '');
-            $first_name = (string) ($bootstrap_player['first_name'] ?? '');
-            $second_name = (string) ($bootstrap_player['second_name'] ?? '');
+            $bootstrap_player = isset($elements_by_id[$player_id]) ? $elements_by_id[$player_id] : [];
+            $team_id = isset($acc['team_id']) ? (int) $acc['team_id'] : 0;
+            $player_name = isset($bootstrap_player['web_name']) ? (string) $bootstrap_player['web_name'] : '';
+            $first_name = isset($bootstrap_player['first_name']) ? (string) $bootstrap_player['first_name'] : '';
+            $second_name = isset($bootstrap_player['second_name']) ? (string) $bootstrap_player['second_name'] : '';
+
             if ($player_name === '') {
                 $player_name = trim($first_name . ' ' . $second_name);
+            }
+            if ($player_name === '') {
+                $player_name = 'Unknown Player';
             }
             if ($player_name === '') {
                 $player_name = 'Unknown Player';
@@ -367,23 +367,27 @@ class FPL_XG_Weeks_Tool {
             sort($acc['opponents']);
             $minutes = (int) $acc['minutes'];
 
+            $position_id = isset($bootstrap_player['element_type']) ? (int) $bootstrap_player['element_type'] : 0;
+            $opponents = isset($acc['opponents']) && is_array($acc['opponents']) ? $acc['opponents'] : [];
+            sort($opponents);
+
             $player_rows[] = [
                 'name' => $player_name,
                 'team' => $team_names[$team_id] ?? 'Unknown',
                 'position' => $position_names[$position_id] ?? 'UNK',
-                'xg' => round((float) $acc['xg'], 2),
-                'xa' => round((float) $acc['xa'], 2),
-                'xgi' => round((float) $acc['xgi'], 2),
-                'goals' => (int) $acc['goals'],
-                'assists' => (int) $acc['assists'],
-                'points' => (int) $acc['points'],
-                'minutes' => $minutes,
-                'matches' => (int) $acc['matches'],
-                'xg_per_90' => $minutes > 0 ? round((((float) $acc['xg']) / $minutes) * 90, 2) : 0,
-                'xa_per_90' => $minutes > 0 ? round((((float) $acc['xa']) / $minutes) * 90, 2) : 0,
-                'xgi_per_90' => $minutes > 0 ? round((((float) $acc['xgi']) / $minutes) * 90, 2) : 0,
-                'median_xg' => round($this->median($acc['xg_samples']), 2),
-                'opponents' => array_values($acc['opponents']),
+                'xg' => round($acc_xg, 2),
+                'xa' => round((float) ($acc['xa'] ?? 0.0), 2),
+                'xgi' => round((float) ($acc['xgi'] ?? 0.0), 2),
+                'goals' => (int) ($acc['goals'] ?? 0),
+                'assists' => (int) ($acc['assists'] ?? 0),
+                'points' => (int) ($acc['points'] ?? 0),
+                'minutes' => $acc_minutes,
+                'matches' => (int) ($acc['matches'] ?? 0),
+                'xg_per_90' => $acc_minutes > 0 ? round(($acc_xg / $acc_minutes) * 90, 2) : 0,
+                'xa_per_90' => $acc_minutes > 0 ? round((((float) ($acc['xa'] ?? 0.0)) / $acc_minutes) * 90, 2) : 0,
+                'xgi_per_90' => $acc_minutes > 0 ? round((((float) ($acc['xgi'] ?? 0.0)) / $acc_minutes) * 90, 2) : 0,
+                'median_xg' => round($this->median((array) ($acc['xg_samples'] ?? [])), 2),
+                'opponents' => array_values($opponents),
             ];
         }
 
