@@ -56,6 +56,35 @@
   cursor: not-allowed;
 }
 
+.fpl-xg-legend {
+  margin: 4px 0 12px;
+  color: #32466f;
+  font-size: 0.92rem;
+}
+
+.fpl-xg-player-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.fpl-xg-player-filters label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: #233b6b;
+}
+
+.fpl-xg-player-filters input,
+.fpl-xg-player-filters select {
+  border: 1px solid #b7c7ea;
+  border-radius: 8px;
+  padding: 5px 8px;
+  background: #fff;
+}
+
 .fpl-xg-status {
   margin: 8px 0 14px;
   color: #16387d;
@@ -101,8 +130,36 @@
   vertical-align: top;
 }
 
+.fpl-xg-table td.is-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
 .fpl-xg-table thead {
   background: #f2f6ff;
+}
+
+.fpl-xg-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.fpl-xg-table th {
+  white-space: nowrap;
+}
+
+.fpl-sort-indicator {
+  margin-left: 6px;
+  color: #7a88a8;
+}
+
+.fpl-xg-table th.is-sorted-asc .fpl-sort-indicator::before {
+  content: '▲';
+}
+
+.fpl-xg-table th.is-sorted-desc .fpl-sort-indicator::before {
+  content: '▼';
 }
 
 .fpl-xg-table tbody tr:nth-child(even) {
@@ -123,4 +180,25 @@
   margin: 2px 4px 2px 0;
   font-size: 0.85rem;
   white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  #fpl-xg-teams-table th:nth-child(4),
+  #fpl-xg-teams-table td:nth-child(4),
+  #fpl-xg-teams-table th:nth-child(9),
+  #fpl-xg-teams-table td:nth-child(9),
+  #fpl-xg-teams-table th:nth-child(10),
+  #fpl-xg-teams-table td:nth-child(10),
+  #fpl-xg-players-table th:nth-child(6),
+  #fpl-xg-players-table td:nth-child(6),
+  #fpl-xg-players-table th:nth-child(7),
+  #fpl-xg-players-table td:nth-child(7),
+  #fpl-xg-players-table th:nth-child(12),
+  #fpl-xg-players-table td:nth-child(12),
+  #fpl-xg-players-table th:nth-child(13),
+  #fpl-xg-players-table td:nth-child(13),
+  #fpl-xg-players-table th:nth-child(14),
+  #fpl-xg-players-table td:nth-child(14) {
+    display: none;
+  }
 }

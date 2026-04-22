@@ -2,7 +2,7 @@
 /**
  * Plugin Name: FPL xG Over Weeks Tool
  * Description: Dynamic tool to view team and player expected goals (xG) over a selected number of recent FPL gameweeks.
- * Version: 1.1.5
+ * Version: 1.1.6
  * Author: xg
  */
 
@@ -29,14 +29,14 @@ class FPL_XG_Weeks_Tool {
             'fpl-xg-weeks-style',
             plugin_dir_url(__FILE__) . 'assets/css/fpl-xg-weeks.css',
             [],
-            '1.1.5'
+            '1.1.6'
         );
 
         wp_register_script(
             'fpl-xg-weeks-script',
             plugin_dir_url(__FILE__) . 'assets/js/fpl-xg-weeks.js',
             ['jquery'],
-            '1.1.5',
+            '1.1.6',
             true
         );
 
@@ -79,6 +79,9 @@ class FPL_XG_Weeks_Tool {
             <div class="fpl-xg-grid">
                 <article class="fpl-xg-card">
                     <h4>Team xG Ranking</h4>
+                    <p class="fpl-xg-legend">
+                        <strong>FDR Legend:</strong> 2 = Easier, 3 = Neutral, 4 = Hard, 5 = Very Hard
+                    </p>
                     <div class="fpl-xg-table-wrap">
                         <table id="fpl-xg-teams-table" class="fpl-xg-table" hidden>
                             <thead>
@@ -104,6 +107,12 @@ class FPL_XG_Weeks_Tool {
 
                 <article class="fpl-xg-card">
                     <h4>Player xG List</h4>
+                    <div class="fpl-xg-player-filters">
+                        <label>Search <input type="search" id="fpl-xg-player-search" placeholder="Player name" /></label>
+                        <label>Team <select id="fpl-xg-player-team"><option value="">All</option></select></label>
+                        <label>Pos <select id="fpl-xg-player-pos"><option value="">All</option></select></label>
+                        <label>Min mins <input type="number" id="fpl-xg-player-minutes" min="0" step="30" value="0" /></label>
+                    </div>
                     <div class="fpl-xg-table-wrap">
                         <table id="fpl-xg-players-table" class="fpl-xg-table" hidden>
                             <thead>
