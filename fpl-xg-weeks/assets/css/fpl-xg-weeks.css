@@ -56,6 +56,64 @@
   cursor: not-allowed;
 }
 
+.fpl-xg-legend {
+  margin: 4px 0 12px;
+  color: #32466f;
+  font-size: 0.92rem;
+}
+
+.fpl-xg-player-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.fpl-xg-mobile-tools {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.fpl-xg-preset-group {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.fpl-xg-mini-btn {
+  border: 1px solid #b7c7ea;
+  background: #fff;
+  color: #17305e;
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.fpl-xg-mini-btn.is-active {
+  background: #245dff;
+  border-color: #245dff;
+  color: #fff;
+}
+
+.fpl-xg-player-filters label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: #233b6b;
+}
+
+.fpl-xg-player-filters input,
+.fpl-xg-player-filters select {
+  border: 1px solid #b7c7ea;
+  border-radius: 8px;
+  padding: 5px 8px;
+  background: #fff;
+}
+
 .fpl-xg-status {
   margin: 8px 0 14px;
   color: #16387d;
@@ -101,16 +159,144 @@
   vertical-align: top;
 }
 
+.fpl-xg-table td.is-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
 .fpl-xg-table thead {
   background: #f2f6ff;
+}
+
+.fpl-xg-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.fpl-xg-table th {
+  white-space: nowrap;
+}
+
+.fpl-xg-table th:first-child,
+.fpl-xg-table td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: #fff;
+}
+
+.fpl-xg-table thead th:first-child {
+  z-index: 3;
+  background: #f2f6ff;
+}
+
+.fpl-xg-table th:nth-child(2),
+.fpl-xg-table td:nth-child(2) {
+  position: sticky;
+  left: 46px;
+  z-index: 2;
+  background: #fff;
+}
+
+.fpl-xg-table thead th:nth-child(2) {
+  z-index: 3;
+  background: #f2f6ff;
+}
+
+.fpl-sort-indicator {
+  margin-left: 6px;
+  color: #7a88a8;
+}
+
+.fpl-xg-table th.is-sorted-asc .fpl-sort-indicator::before {
+  content: '▲';
+}
+
+.fpl-xg-table th.is-sorted-desc .fpl-sort-indicator::before {
+  content: '▼';
 }
 
 .fpl-xg-table tbody tr:nth-child(even) {
   background: #fafcff;
 }
 
-@media (min-width: 1060px) {
-  .fpl-xg-grid {
-    grid-template-columns: 1fr 1fr;
+.fpl-xg-opp-list {
+  line-height: 1.8;
+}
+
+.fpl-xg-opp-chip {
+  display: inline-block;
+  border: 1px solid #d6e4ff;
+  background: #f7faff;
+  color: #1e3568;
+  border-radius: 999px;
+  padding: 2px 8px;
+  margin: 2px 4px 2px 0;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .fpl-xg-player-filters {
+    display: none;
+  }
+
+  .fpl-xg-player-filters.is-open {
+    display: flex;
+  }
+
+  #fpl-xg-players-table.preset-overview th:nth-child(6),
+  #fpl-xg-players-table.preset-overview td:nth-child(6),
+  #fpl-xg-players-table.preset-overview th:nth-child(7),
+  #fpl-xg-players-table.preset-overview td:nth-child(7),
+  #fpl-xg-players-table.preset-overview th:nth-child(8),
+  #fpl-xg-players-table.preset-overview td:nth-child(8),
+  #fpl-xg-players-table.preset-overview th:nth-child(9),
+  #fpl-xg-players-table.preset-overview td:nth-child(9),
+  #fpl-xg-players-table.preset-overview th:nth-child(12),
+  #fpl-xg-players-table.preset-overview td:nth-child(12),
+  #fpl-xg-players-table.preset-overview th:nth-child(13),
+  #fpl-xg-players-table.preset-overview td:nth-child(13),
+  #fpl-xg-players-table.preset-overview th:nth-child(14),
+  #fpl-xg-players-table.preset-overview td:nth-child(14) {
+    display: none;
+  }
+
+  #fpl-xg-players-table.preset-attack th:nth-child(10),
+  #fpl-xg-players-table.preset-attack td:nth-child(10),
+  #fpl-xg-players-table.preset-attack th:nth-child(14),
+  #fpl-xg-players-table.preset-attack td:nth-child(14),
+  #fpl-xg-players-table.preset-attack th:nth-child(15),
+  #fpl-xg-players-table.preset-attack td:nth-child(15) {
+    display: none;
+  }
+
+  #fpl-xg-players-table.preset-form th:nth-child(5),
+  #fpl-xg-players-table.preset-form td:nth-child(5),
+  #fpl-xg-players-table.preset-form th:nth-child(6),
+  #fpl-xg-players-table.preset-form td:nth-child(6),
+  #fpl-xg-players-table.preset-form th:nth-child(7),
+  #fpl-xg-players-table.preset-form td:nth-child(7),
+  #fpl-xg-players-table.preset-form th:nth-child(8),
+  #fpl-xg-players-table.preset-form td:nth-child(8),
+  #fpl-xg-players-table.preset-form th:nth-child(9),
+  #fpl-xg-players-table.preset-form td:nth-child(9),
+  #fpl-xg-players-table.preset-form th:nth-child(12),
+  #fpl-xg-players-table.preset-form td:nth-child(12),
+  #fpl-xg-players-table.preset-form th:nth-child(13),
+  #fpl-xg-players-table.preset-form td:nth-child(13) {
+    display: none;
+  }
+
+  #fpl-xg-teams-table th:nth-child(4),
+  #fpl-xg-teams-table td:nth-child(4),
+  #fpl-xg-teams-table th:nth-child(9),
+  #fpl-xg-teams-table td:nth-child(9),
+  #fpl-xg-teams-table th:nth-child(10),
+  #fpl-xg-teams-table td:nth-child(10),
+  #fpl-xg-players-table th:nth-child(16),
+  #fpl-xg-players-table td:nth-child(16) {
+    display: none;
   }
 }
