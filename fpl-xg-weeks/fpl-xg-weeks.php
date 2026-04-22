@@ -2,7 +2,7 @@
 /**
  * Plugin Name: FPL xG Over Weeks Tool
  * Description: Dynamic tool to view team and player expected goals (xG) over a selected number of recent FPL gameweeks.
- * Version: 1.1.7
+ * Version: 1.1.8
  * Author: xg
  */
 
@@ -29,14 +29,14 @@ class FPL_XG_Weeks_Tool {
             'fpl-xg-weeks-style',
             plugin_dir_url(__FILE__) . 'assets/css/fpl-xg-weeks.css',
             [],
-            '1.1.7'
+            '1.1.8'
         );
 
         wp_register_script(
             'fpl-xg-weeks-script',
             plugin_dir_url(__FILE__) . 'assets/js/fpl-xg-weeks.js',
             ['jquery'],
-            '1.1.7',
+            '1.1.8',
             true
         );
 
@@ -259,12 +259,6 @@ class FPL_XG_Weeks_Tool {
             }
         }
 
-        $team_meta = $fixtures_context['teamMeta'] ?? [];
-        $fixtures_by_id = $fixtures_context['fixtures'] ?? [];
-        $team_stats = [];
-        $team_gw_xg = [];
-        $player_accumulators = [];
-
             $player_accumulators[$player_id] = [
                 'team_id' => (int) ($bootstrap_player['team'] ?? 0),
                 'xg' => 0.0,
@@ -299,6 +293,12 @@ class FPL_XG_Weeks_Tool {
                 $player_accumulators[$player_id]['minutes'] += $entry_minutes;
                 if ($entry_minutes > 0) {
                     $player_accumulators[$player_id]['matches']++;
+                }
+                $player_accumulators[$player_id]['goals'] += isset($entry['goals_scored']) ? (int) $entry['goals_scored'] : 0;
+                $player_accumulators[$player_id]['assists'] += isset($entry['assists']) ? (int) $entry['assists'] : 0;
+                $player_accumulators[$player_id]['points'] += isset($entry['total_points']) ? (int) $entry['total_points'] : 0;
+                if ($entry_minutes > 0) {
+                    $player_accumulators[$player_id]['xg_samples'][] = $entry_xg;
                 }
                 $player_accumulators[$player_id]['goals'] += isset($entry['goals_scored']) ? (int) $entry['goals_scored'] : 0;
                 $player_accumulators[$player_id]['assists'] += isset($entry['assists']) ? (int) $entry['assists'] : 0;
@@ -353,8 +353,10 @@ class FPL_XG_Weeks_Tool {
             $bootstrap_player = $elements_by_id[$player_id] ?? [];
             $team_id = (int) ($acc['team_id'] ?? 0);
             $player_name = (string) ($bootstrap_player['web_name'] ?? '');
+            $first_name = (string) ($bootstrap_player['first_name'] ?? '');
+            $second_name = (string) ($bootstrap_player['second_name'] ?? '');
             if ($player_name === '') {
-                $player_name = trim(((string) ($bootstrap_player['first_name'] ?? '')) . ' ' . ((string) ($bootstrap_player['second_name'] ?? '')));
+                $player_name = trim($first_name . ' ' . $second_name);
             }
             if ($player_name === '') {
                 $player_name = 'Unknown Player';
