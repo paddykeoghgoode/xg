@@ -168,6 +168,13 @@
     makeTableSortable('#fpl-xg-players-table');
   }
 
+  function applyPlayerPreset(preset) {
+    const $table = $('#fpl-xg-players-table');
+    $table.removeClass('preset-overview preset-attack preset-form').addClass(`preset-${preset}`);
+    $('[data-player-preset]').removeClass('is-active');
+    $(`[data-player-preset="${preset}"]`).addClass('is-active');
+  }
+
   function loadData() {
     const weeks = Number($('#fpl-xg-week-count').val() || 5);
     const playerLimit = Number($('#fpl-xg-player-limit').val() || 60);
@@ -196,6 +203,7 @@
         renderTeams(teamRows);
         populatePlayerFilters(allPlayerRows);
         applyPlayerFilters();
+        applyPlayerPreset('overview');
         makeTableSortable('#fpl-xg-teams-table');
 
         setStatus(`Updated for GW${data.fromGw}–GW${data.toGw}: ${teamRows.length} teams, ${allPlayerRows.length} players.`);
@@ -212,5 +220,11 @@
 
   $(document).on('click', '#fpl-xg-load', loadData);
   $(document).on('input change', '#fpl-xg-player-search, #fpl-xg-player-team, #fpl-xg-player-pos, #fpl-xg-player-minutes', applyPlayerFilters);
+  $(document).on('click', '[data-player-preset]', function () {
+    applyPlayerPreset(String($(this).data('playerPreset') || 'overview'));
+  });
+  $(document).on('click', '#fpl-xg-toggle-filters', function () {
+    $('.fpl-xg-player-filters').toggleClass('is-open');
+  });
   $(document).ready(loadData);
 })(jQuery);

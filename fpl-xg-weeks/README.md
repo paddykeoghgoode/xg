@@ -6,7 +6,8 @@ This plugin adds a dynamic dashboard showing:
 - **Opponents faced** by each team in that gameweek window.
 - **Individual player xG list** (ranked) for the same period, including xA, xGI, xA/90, xGI/90, median xG (per appearance), goals, assists, points, and position.
 - **Mobile-friendly tables** with compact columns and sticky headers for easier scanning.
-- **Client-side player filters** (search, team, position, minimum minutes).
+- **Client-side player filters** (search, team, position, minimum minutes) with a mobile toggle.
+- **Mobile player view presets** (`Overview`, `Attack`, `Form`) for quick column switching.
 
 Data is pulled from the official FPL API and refreshed live through AJAX.
 
