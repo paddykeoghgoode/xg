@@ -257,6 +257,7 @@ class FPL_XG_Weeks_Tool {
             if (is_wp_error($summary)) {
                 return $summary;
             }
+        }
 
             $player_accumulators[$player_id] = [
                 'team_id' => (int) ($bootstrap_player['team'] ?? 0),
@@ -299,6 +300,10 @@ class FPL_XG_Weeks_Tool {
                 if ($entry_minutes > 0) {
                     $player_accumulators[$player_id]['xg_samples'][] = $entry_xg;
                 }
+                $player_accumulators[$player_id]['goals'] += isset($stats['goals_scored']) ? (int) $stats['goals_scored'] : 0;
+                $player_accumulators[$player_id]['assists'] += isset($stats['assists']) ? (int) $stats['assists'] : 0;
+                $player_accumulators[$player_id]['points'] += isset($stats['total_points']) ? (int) $stats['total_points'] : 0;
+                $player_accumulators[$player_id]['xg_samples'][] = $entry_xg;
 
                 if ($opponent_team_id > 0 && isset($team_names[$opponent_team_id])) {
                     $player_accumulators[$player_id]['opponents'][$opponent_team_id] = $team_names[$opponent_team_id];
@@ -353,6 +358,14 @@ class FPL_XG_Weeks_Tool {
             if ($player_name === '') {
                 $player_name = 'Unknown Player';
             }
+            if ($player_name === '') {
+                $player_name = 'Unknown Player';
+            }
+
+            $position_id = (int) ($bootstrap_player['element_type'] ?? 0);
+
+            sort($acc['opponents']);
+            $minutes = (int) $acc['minutes'];
 
             $position_id = isset($bootstrap_player['element_type']) ? (int) $bootstrap_player['element_type'] : 0;
             $opponents = isset($acc['opponents']) && is_array($acc['opponents']) ? $acc['opponents'] : [];
@@ -657,14 +670,14 @@ class FPL_XG_Weeks_Tool {
             return $cached;
         }
 
-        $summary = $this->request_json('/element-summary/' . $player_id . '/');
-        if (is_wp_error($summary)) {
-            return $summary;
+        $event_live = $this->request_json('/event/' . $gw . '/live/');
+        if (is_wp_error($event_live)) {
+            return $event_live;
         }
 
-        set_transient($cache_key, $summary, 30 * MINUTE_IN_SECONDS);
+        set_transient($cache_key, $event_live, 30 * MINUTE_IN_SECONDS);
 
-        return $summary;
+        return $event_live;
     }
 
     private function request_json(string $path) {
